@@ -20,12 +20,20 @@ else
     SECRET_PATHS="$@"
 fi
 
+function make_absolute() {
+  dir=$(dirname $1)
+  pushd ${dir} > /dev/null
+  absolute_path=$(pwd)
+  popd > /dev/null
+  echo ${absolute_path}/$(basename $1)
+}
+
 function render_template() {
   # Vault settings
   VAULT_ADDR="https://vault.actano.de"
   VAULT_TOKEN_PATH="${HOME}/.vault-token"
 
-  local TEMPLATE_FILE=$1
+  local TEMPLATE_FILE=$(make_absolute $1)
   local BASENAME_TEMPLATE_FILE=$(basename ${TEMPLATE_FILE})
   local DIRNAME_TEMPLATE_FILE=$(dirname ${TEMPLATE_FILE})
 
@@ -42,7 +50,7 @@ function render_template() {
   # Render secret template
   docker run --rm \
     -v ${VAULT_TOKEN_PATH}:/root/token \
-    -v $(pwd)/${TEMPLATE_FILE}:/root/secret.template.yaml \
+    -v ${TEMPLATE_FILE}:/root/secret.template.yaml \
     -v $(pwd)/${SECRET_BASEPATH}:/root/${SECRET_BASEPATH} \
     rplan/vault-template:1.0.1 \
       --vault ${VAULT_ADDR} \
@@ -54,7 +62,7 @@ function render_template() {
   # kubeseal doesn't support `stringData`, so we have to convert to base64 beforehand
   docker run --rm \
     -v $(pwd)/${SECRET_PATH}:/data/secret.yaml \
-    -v $(pwd)/${SCRIPT_BASE64_SECRET_FILE}:/data/run.sh \
+    -v ${SCRIPT_BASE64_SECRET_FILE}:/data/run.sh \
     rplan/transform-yaml \
    > ${SECRET_TMP_PATH}
 
@@ -72,6 +80,7 @@ function update_sealed_secrets_in_path() {
 
   # Template files to read vault secret paths from
   export -f render_template
+  export -f make_absolute
   find ${SECRET_PATH} -name "*.template.yaml" -exec bash -c 'render_template "$0"' {} \;
 }
 

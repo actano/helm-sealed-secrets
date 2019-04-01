@@ -1,6 +1,7 @@
 #!/bin/bash
 
 HELM_BIN="${HELM_BIN:-helm}"
+OWN_DIR=$(dirname $0)
 
 function usage() {
   cat <<EOF
@@ -34,6 +35,8 @@ function update() {
     update_usage
     return
   fi
+
+  ${OWN_DIR}/update-sealed-secrets.sh "$1"
 }
 
 case "${1:-help}" in
