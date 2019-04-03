@@ -9,7 +9,7 @@ This way, you can store both the template and their rendered representation in g
 helm install https://github.com/actano/helm-sealed-secrets
 ```
 
-### Usage
+### Configuration
 | Parameter                                    | Description                          | Default                                                                                        |
 | ---------------------------------            | ------------------------------------ | ----------------------------------------------------------------------------                   |
 | `-c, --sealed-secrets-controller-namespace`  | Sealed secrets controller namespace  | `kube-system` as defined in [`sealed-secrets`](https://github.com/bitnami-labs/sealed-secrets) |
@@ -55,4 +55,35 @@ spec:
   encryptedData:
     username: 7tgrVWorKLqoZc...
     password: LbeaMTWxTpWAKD...
+```
+
+#### Folders
+
+The names of your secret templates must match the pattern `<name>.template.yaml`.
+
+Given this file structure
+```
+└── secret-templates
+    └── releases
+        ├── dev
+        │   └── my-secret.template.yaml
+        └── prod
+            └── my-secret.template.yaml
+```
+
+Executing
+
+```bash
+helm sealed-secrets -I ./secret-templates -O ./secret-sealed --vault-token-file /Users/myuser/.vault-token
+```
+
+will create the folder structure below `./secret-sealed` and write the sealed secrets in the corresponding folders as `<name>.sealed.yaml`.
+
+```
+└── secret-sealed
+    └── releases
+        ├── dev
+        │   └── my-secret.sealed.yaml
+        └── prod
+            └── my-secret.sealed.yaml
 ```
