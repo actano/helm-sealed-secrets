@@ -13,7 +13,7 @@ type config struct {
     OutputFile                       string `flag:"output-file,o" description:"The output file path where the sealed secret should be written to."`
 }
 
-func usage(msg string) {
+func printUsage(msg string) {
     println(msg)
     rconfig.Usage()
     os.Exit(1)
@@ -29,7 +29,7 @@ func main() {
     cfg, err := parseConfig()
 
     if err != nil {
-    	usage("")
+    	printUsage("")
         panic(err)
     }
 
@@ -46,4 +46,6 @@ func main() {
         }
         return
     }
+
+    printUsage("")
 }
