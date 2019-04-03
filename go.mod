@@ -34,5 +34,5 @@ require (
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	gopkg.in/validator.v2 v2.0.0-20180514200540-135c24b11c19 // indirect
 	gopkg.in/yaml.v2 v2.2.2
-	gotest.tools v2.2.0+incompatible // indirect
+	gotest.tools v2.2.0+incompatible
 )
