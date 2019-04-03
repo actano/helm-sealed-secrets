@@ -36,10 +36,10 @@ func findFiles(targetDir, pattern string) ([]string, error) {
 }
 
 type InputOutputPaths struct {
-	inputPath, outputPath string
+	InputPath, OutputPath string
 }
 
-func getInputOutputPaths(matches []string, inputDir, outputDir string) (inputOutputPaths []InputOutputPaths, err error) {
+func GetInputOutputPaths(matches []string, inputDir, outputDir string) (inputOutputPaths []InputOutputPaths, err error) {
 	for _, match := range matches {
 		var relativePath string
 		relativePath, err = filepath.Rel(inputDir, match)
@@ -51,8 +51,8 @@ func getInputOutputPaths(matches []string, inputDir, outputDir string) (inputOut
 		outputFileName := strings.Replace(inputFilename, ".template.yaml", ".yaml", 1)
 		outputFilePath := filepath.Join(outputDir, subPath, outputFileName)
 		inputOutputPaths = append(inputOutputPaths, InputOutputPaths {
-			inputPath: match,
-			outputPath: outputFilePath,
+			InputPath:  match,
+			OutputPath: outputFilePath,
 		})
 	}
 	return
@@ -87,13 +87,13 @@ func main() {
 			panic(err)
 		}
 
-    	inputOutputPaths, err := getInputOutputPaths(matches, cfg.InputDir, cfg.OutputDir)
+    	inputOutputPaths, err := GetInputOutputPaths(matches, cfg.InputDir, cfg.OutputDir)
 
     	if err != nil {
     		panic(err)
 		}
     	for _, match := range inputOutputPaths {
-    		err = renderer.renderSingleFile(match.inputPath, match.outputPath)
+    		err = renderer.renderSingleFile(match.InputPath, match.OutputPath)
     		if err != nil {
     			panic(err)
 			}
