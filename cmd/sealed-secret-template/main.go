@@ -1,8 +1,11 @@
 package main
 
 import (
-    "github.com/Luzifer/rconfig"
-    "os"
+	"github.com/Luzifer/rconfig"
+	"github.com/bmatcuk/doublestar"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 type config struct {
@@ -11,6 +14,8 @@ type config struct {
     SealedSecretsControllerNamespace string `flag:"sealed-secrets-controller-namespace,c" description:"Sealed secret controller namespace"`
     InputFile                        string `flag:"input-file,i" description:"The input secret template which should be rendered and sealed."`
     OutputFile                       string `flag:"output-file,o" description:"The output file path where the sealed secret should be written to."`
+    InputDir                         string `flag:"input-dir,I" description:"The directory in which to find secret templates to render and seal. Files must match the pattern '<filename>.template.yaml'. The folder structure will be preserved and created at the configured output dir."`
+    OutputDir                        string `flag:"output-dir,O" description:"The directory in which to put the rendered sealed secret files. The directory structure from the input directory will be preserved."`
 }
 
 func printUsage(msg string) {
@@ -23,6 +28,34 @@ func parseConfig() (*config, error) {
     cfg := &config{}
     err := rconfig.Parse(cfg)
     return cfg, err
+}
+
+func findFiles(targetDir, pattern string) ([]string, error) {
+	globPattern := filepath.Join(targetDir, "**", pattern)
+	return doublestar.Glob(globPattern)
+}
+
+type InputOutputPaths struct {
+	inputPath, outputPath string
+}
+
+func getInputOutputPaths(matches []string, inputDir, outputDir string) (inputOutputPaths []InputOutputPaths, err error) {
+	for _, match := range matches {
+		var relativePath string
+		relativePath, err = filepath.Rel(inputDir, match)
+		if err != nil {
+			return
+		}
+		subPath := filepath.Dir(relativePath)
+		inputFilename := filepath.Base(relativePath)
+		outputFileName := strings.Replace(inputFilename, ".template.yaml", ".yaml", 1)
+		outputFilePath := filepath.Join(outputDir, subPath, outputFileName)
+		inputOutputPaths = append(inputOutputPaths, InputOutputPaths {
+			inputPath: match,
+			outputPath: outputFilePath,
+		})
+	}
+	return
 }
 
 func main() {
@@ -45,6 +78,27 @@ func main() {
             panic(err)
         }
         return
+    }
+
+    if cfg.InputDir != "" && cfg.OutputDir != "" {
+    	matches, err := findFiles(cfg.InputDir, "*.template.yaml")
+
+		if err != nil {
+			panic(err)
+		}
+
+    	inputOutputPaths, err := getInputOutputPaths(matches, cfg.InputDir, cfg.OutputDir)
+
+    	if err != nil {
+    		panic(err)
+		}
+    	for _, match := range inputOutputPaths {
+    		err = renderer.renderSingleFile(match.inputPath, match.outputPath)
+    		if err != nil {
+    			panic(err)
+			}
+		}
+    	return
     }
 
     printUsage("")
