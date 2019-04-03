@@ -25,7 +25,7 @@ func NewRenderer(cfg *config) (*renderer, error) {
 			panic(err)
 		}
 
-		vaultRenderer, err = template.NewVaultTemplateRenderer(string(vaultToken), "https://vault.actano.de")
+		vaultRenderer, err = template.NewVaultTemplateRenderer(string(vaultToken), cfg.VaultEndpoint)
 
 		if err != nil {
 			return nil, err
