@@ -1,7 +1,7 @@
 .PHONY: build release-bin clean
 
 build:
-	go build ./cmd/sealed-secret-template
+	go build -o ./build/sealed-secret-template ./cmd/sealed-secret-template
 
 release-bin:
 	for arch in amd64; do \
@@ -12,4 +12,3 @@ release-bin:
 
 clean:
 	rm -rf build
-	rm -f sealed-secret-template
