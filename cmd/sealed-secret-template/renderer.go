@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/base64"
+	"encoding/gob"
 	"fmt"
 	"github.com/actano/vault-template/pkg/template"
 	"gopkg.in/yaml.v2"
@@ -86,6 +88,7 @@ func (r *renderer) renderSingleFile(inputFilePath, outputFilePath string) (err e
 	}()
 
 	_, err = outputFile.Write([]byte(sealedContent))
+	fmt.Println("Created sealed file " + outputFilePath)
 	return
 }
 
@@ -123,6 +126,16 @@ func (r *renderer) sealSecret(secret string) (sealedSecret string, err error) {
 	return
 }
 
+func getBytes(key interface{}) ([]byte, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	err := enc.Encode(key)
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
+}
+
 func dataToBase64(secretContent string) (string, error) {
 	secret := yaml.MapSlice{}
 	err := yaml.Unmarshal([]byte(secretContent), &secret)
@@ -135,8 +148,11 @@ func dataToBase64(secretContent string) (string, error) {
 		if item.Key == "data" {
 			data := item.Value.(yaml.MapSlice)
 			for k, dataItem := range data {
-				value := dataItem.Value.(string)
-				data[k].Value = base64.StdEncoding.EncodeToString([]byte(value))
+				valueBytes, err := getBytes(dataItem.Value)
+				if err != nil {
+					return "", err
+				}
+				data[k].Value = base64.StdEncoding.EncodeToString(valueBytes)
 			}
 		}
 	}
