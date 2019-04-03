@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/base64"
+	"fmt"
 	"github.com/actano/vault-template/pkg/template"
 	"gopkg.in/yaml.v2"
 	"io"
@@ -100,6 +101,15 @@ func (r *renderer) sealSecret(secret string) (sealedSecret string, err error) {
 	}()
 
 	out, err := cmd.Output()
+	if err != nil {
+		switch err := err.(type) {
+		case *exec.Error:
+			fmt.Println(err)
+		case *exec.ExitError:
+			fmt.Println("kubeseal returned error:", string(err.Stderr))
+		}
+		return
+	}
 	sealedSecret = string(out)
 
 	return
