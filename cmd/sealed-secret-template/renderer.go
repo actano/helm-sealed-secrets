@@ -19,6 +19,15 @@ type renderer struct {
 	cfg           *config
 }
 
+var alreadyPrinted = make(map[string]bool)
+// printOnce prints any given message only once per program execution
+func printOnce(msg string) {
+	if alreadyPrinted[msg] != true {
+		fmt.Println(msg)
+		alreadyPrinted[msg] = true
+	}
+}
+
 func NewRenderer(cfg *config) (*renderer, error) {
 	var vaultRenderer *template.VaultTemplateRenderer
 
@@ -56,6 +65,8 @@ func (r *renderer) renderSingleFile(inputFilePath, outputFilePath string) (err e
 		if err != nil {
 			return
 		}
+	} else {
+		printOnce("NOTE: Not using vault, sealing the secrets as is.")
 	}
 
 	base64Data, err := dataToBase64(renderedContent)
