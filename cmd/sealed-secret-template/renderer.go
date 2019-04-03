@@ -45,10 +45,13 @@ func (r *renderer) renderSingleFile() (err error) {
 		return
 	}
 
-	renderedContent, err := r.vaultRenderer.RenderTemplate(string(inputContent))
+	renderedContent := string(inputContent)
+	if r.vaultRenderer != nil {
+		renderedContent, err = r.vaultRenderer.RenderTemplate(string(inputContent))
 
-	if err != nil {
-		return
+		if err != nil {
+			return
+		}
 	}
 
 	base64Data, err := dataToBase64(renderedContent)
