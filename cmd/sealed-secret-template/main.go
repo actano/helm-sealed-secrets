@@ -40,7 +40,7 @@ func main() {
     }
 
     if cfg.InputFile != "" && cfg.OutputFile != "" {
-        err = renderer.renderSingleFile()
+        err = renderer.renderSingleFile(cfg.InputFile, cfg.OutputFile)
         if err != nil {
             panic(err)
         }

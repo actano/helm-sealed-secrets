@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/exec"
+	"path/filepath"
 )
 
 type renderer struct {
@@ -39,8 +40,8 @@ func NewRenderer(cfg *config) (*renderer, error) {
 	}, nil
 }
 
-func (r *renderer) renderSingleFile() (err error) {
-	inputContent, err := ioutil.ReadFile(r.cfg.InputFile)
+func (r *renderer) renderSingleFile(inputFilePath, outputFilePath string) (err error) {
+	inputContent, err := ioutil.ReadFile(inputFilePath)
 
 	if err != nil {
 		return
@@ -67,7 +68,14 @@ func (r *renderer) renderSingleFile() (err error) {
 		return
 	}
 
-	outputFile, err := os.Create(r.cfg.OutputFile)
+	// make output path
+	outputDirectory := filepath.Dir(outputFilePath)
+	err = os.MkdirAll(outputDirectory, 0755)
+
+	if err != nil {
+		return
+	}
+	outputFile, err := os.Create(outputFilePath)
 
 	if err != nil {
 		return
