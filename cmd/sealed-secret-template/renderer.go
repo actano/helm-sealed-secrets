@@ -6,6 +6,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	"github.com/actano/vault-template/pkg/template"
+	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
@@ -32,7 +33,11 @@ func NewRenderer(cfg *config) (*renderer, error) {
 	var vaultRenderer *template.VaultTemplateRenderer
 
 	if cfg.VaultTokenFile != "" && cfg.VaultEndpoint != "" {
-		vaultToken, err := ioutil.ReadFile(cfg.VaultTokenFile)
+		expandedTokenFile, err := homedir.Expand(cfg.VaultTokenFile)
+		if err != nil {
+			panic(err)
+		}
+		vaultToken, err := ioutil.ReadFile(expandedTokenFile)
 
 		if err != nil {
 			panic(err)
