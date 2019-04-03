@@ -48,7 +48,7 @@ func GetInputOutputPaths(matches []string, inputDir, outputDir string) (inputOut
 		}
 		subPath := filepath.Dir(relativePath)
 		inputFilename := filepath.Base(relativePath)
-		outputFileName := strings.Replace(inputFilename, ".template.yaml", ".yaml", 1)
+		outputFileName := strings.Replace(inputFilename, ".template.yaml", ".sealed.yaml", 1)
 		outputFilePath := filepath.Join(outputDir, subPath, outputFileName)
 		inputOutputPaths = append(inputOutputPaths, InputOutputPaths {
 			InputPath:  match,

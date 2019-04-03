@@ -18,11 +18,11 @@ func TestGetInputOutputPaths(t *testing.T) {
 	assert.DeepEqual(t, inputOutputPaths, []InputOutputPaths{
 		{
 			InputPath:  "./secret/subpath1/secret1.template.yaml",
-			OutputPath: "sealed/subpath1/secret1.yaml",
+			OutputPath: "sealed/subpath1/secret1.sealed.yaml",
 		},
 		{
 			InputPath:  "./secret/subpath2/secret2.template.yaml",
-			OutputPath: "sealed/subpath2/secret2.yaml",
+			OutputPath: "sealed/subpath2/secret2.sealed.yaml",
 		},
 	})
 }
