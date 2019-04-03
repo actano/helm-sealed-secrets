@@ -60,7 +60,7 @@ func (r *renderer) renderSingleFile() (err error) {
 		return
 	}
 
-	sealedContent, err := sealSecret(base64Data)
+	sealedContent, err := r.sealSecret(base64Data)
 
 	if err != nil {
 		return
@@ -80,8 +80,8 @@ func (r *renderer) renderSingleFile() (err error) {
 	return
 }
 
-func sealSecret(secret string) (sealedSecret string, err error) {
-	cmd := exec.Command("kubeseal", "--controller-namespace", "sealed-secrets", "--format", "yaml")
+func (r *renderer) sealSecret(secret string) (sealedSecret string, err error) {
+	cmd := exec.Command("kubeseal", "--controller-namespace", r.cfg.SealedSecretsControllerNamespace, "--format", "yaml")
 	stdin, err := cmd.StdinPipe()
 
 	if err != nil {
