@@ -81,7 +81,11 @@ func (r *renderer) renderSingleFile() (err error) {
 }
 
 func (r *renderer) sealSecret(secret string) (sealedSecret string, err error) {
-	cmd := exec.Command("kubeseal", "--controller-namespace", r.cfg.SealedSecretsControllerNamespace, "--format", "yaml")
+	args := []string { "--format", "yaml" }
+	if r.cfg.SealedSecretsControllerNamespace != "" {
+		args = append(args, "--controller-namespace", r.cfg.SealedSecretsControllerNamespace)
+	}
+	cmd := exec.Command("kubeseal", args...)
 	stdin, err := cmd.StdinPipe()
 
 	if err != nil {
