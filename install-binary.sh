@@ -2,7 +2,7 @@
 
 set -ueo pipefail
 
-VERSION=0.1.2
+VERSION=0.1.3
 
 function isAlreadyInstalled() {
   hash sealed-secret-template 2>/dev/null && [[ $(sealed-secret-template -v | cut -d " " -f 3) == ${VERSION} ]]
