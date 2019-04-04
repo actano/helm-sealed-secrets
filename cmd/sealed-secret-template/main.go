@@ -3,36 +3,64 @@ package main
 import (
 	"os"
 
-	"github.com/urfave/cli"
+	"gopkg.in/urfave/cli.v1"
+	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
 func createRenderer(c *cli.Context) (*renderer, error) {
-	vaultEndpoint := c.GlobalString("vault-address")
-	vaultTokenFile := c.GlobalString("vault-token-file")
-	sealedSecretsControllerNamespace := c.GlobalString("sealed-secrets-controller-namespace")
+	vaultEndpoint := c.GlobalString("vault.address")
+	vaultTokenFile := c.GlobalString("vault.token-file")
+	sealedSecretsControllerNamespace := c.GlobalString("sealed-secrets.controller-namespace")
 
 	return NewRenderer(sealedSecretsControllerNamespace, vaultTokenFile, vaultEndpoint)
 }
 
+func NewYamlSourceFromFile(file string) func(context *cli.Context) (altsrc.InputSourceContext, error) {
+	return func(context *cli.Context) (altsrc.InputSourceContext, error) {
+		return altsrc.NewYamlSourceFromFile(file)
+	}
+}
+
+func MaybeLoadConfigFromFile(flags []cli.Flag) cli.BeforeFunc {
+	return func(c *cli.Context) error {
+		configFilePath := c.String("config-file")
+
+		if _, err := os.Stat(configFilePath); err == nil {
+			return altsrc.InitInputSourceWithContext(flags, NewYamlSourceFromFile(configFilePath))(c)
+		}
+
+		return nil
+	}
+}
+
 func main() {
 	app := cli.NewApp()
-	app.Flags = []cli.Flag{
+
+	flags := []cli.Flag{
 		cli.StringFlag{
-			Name:   "vault-address",
+			Name:  "config-file",
+			Usage: "Config file to configure the other flags",
+			Value: ".sealed-secrets.yaml",
+		},
+		cli.StringFlag{
+			Name:  "vault.token-file",
+			Usage: "Location of the vault token file",
+			Value: "~/.vault-token",
+		},
+		altsrc.NewStringFlag(cli.StringFlag{
+			Name:   "vault.address",
 			Usage:  "Vault API endpoint",
 			EnvVar: "VAULT_ADDR",
-		},
-		cli.StringFlag{
-			Name:   "vault-token-file",
-			Usage:  "Location of the vault token file",
-			EnvVar: "VAULT_TOKEN_FILE",
-			Value:  "~/.vault-token",
-		},
-		cli.StringFlag{
-			Name:  "sealed-secrets-controller-namespace, c",
+		}),
+		altsrc.NewStringFlag(cli.StringFlag{
+			Name:  "sealed-secrets.controller-namespace",
 			Usage: "The namespace in which the sealed secrets controller runs",
-		},
+		}),
 	}
+
+	app.Before = MaybeLoadConfigFromFile(flags)
+	app.Flags = flags
+
 	app.Commands = []cli.Command{
 		{
 			Name:  "enc",
