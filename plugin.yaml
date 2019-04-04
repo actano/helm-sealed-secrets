@@ -6,3 +6,6 @@ description: |-
   (https://github.com/bitnami-labs/sealed-secrets).
 command: $HELM_PLUGIN_DIR/build/sealed-secret-template
 useTunnel: false
+hooks:
+  install: $HELM_PLUGIN_DIR/install-binary.sh
+  update: $HELM_PLUGIN_DIR/install-binary.sh
