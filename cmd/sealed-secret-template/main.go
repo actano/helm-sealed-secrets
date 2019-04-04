@@ -8,11 +8,18 @@ import (
 )
 
 func createRenderer(c *cli.Context) (*renderer, error) {
-	vaultEndpoint := c.GlobalString("vault.address")
-	vaultTokenFile := c.GlobalString("vault.token-file")
-	sealedSecretsControllerNamespace := c.GlobalString("sealed-secrets.controller-namespace")
+	cfg := rendererConfig{
+		sealedSecrets: sealedSecretsConfig{
+			controllerNamespace: c.GlobalString("sealed-secrets.controller-namespace"),
+			publicKey:           c.GlobalString("sealed-secrets.public-key"),
+		},
+		vault: vaultConfig{
+			endpoint:  c.GlobalString("vault.address"),
+			tokenFile: c.GlobalString("vault.token-file"),
+		},
+	}
 
-	return NewRenderer(sealedSecretsControllerNamespace, vaultTokenFile, vaultEndpoint)
+	return NewRenderer(cfg)
 }
 
 func NewYamlSourceFromFile(file string) func(context *cli.Context) (altsrc.InputSourceContext, error) {
@@ -54,8 +61,12 @@ func main() {
 			EnvVar: "VAULT_ADDR",
 		}),
 		altsrc.NewStringFlag(cli.StringFlag{
+			Name:  "sealed-secrets.public-key",
+			Usage: "Path to a file which contains the public key for sealing the secrets.",
+		}),
+		altsrc.NewStringFlag(cli.StringFlag{
 			Name:  "sealed-secrets.controller-namespace",
-			Usage: "The namespace in which the sealed secrets controller runs",
+			Usage: "The namespace in which the sealed secrets controller runs. Only used if the sealed-secrets.public-key flag is not set.",
 		}),
 	}
 

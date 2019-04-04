@@ -18,9 +18,22 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type sealedSecretsConfig struct {
+	controllerNamespace, publicKey string
+}
+
+type vaultConfig struct {
+	tokenFile, endpoint string
+}
+
+type rendererConfig struct {
+	sealedSecrets sealedSecretsConfig
+	vault         vaultConfig
+}
+
 type renderer struct {
-	vaultRenderer                    *template.VaultTemplateRenderer
-	sealedSecretsControllerNamespace string
+	vaultRenderer *template.VaultTemplateRenderer
+	sealedSecrets sealedSecretsConfig
 }
 
 var alreadyPrinted = make(map[string]bool)
@@ -33,11 +46,11 @@ func printOnce(msg string) {
 	}
 }
 
-func NewRenderer(sealedSecretsControllerNamespace, vaultTokenFile, vaultEndpoint string) (*renderer, error) {
+func NewRenderer(cfg rendererConfig) (*renderer, error) {
 	var vaultRenderer *template.VaultTemplateRenderer
 
-	if vaultTokenFile != "" && vaultEndpoint != "" {
-		expandedTokenFile, err := homedir.Expand(vaultTokenFile)
+	if cfg.vault.tokenFile != "" && cfg.vault.endpoint != "" {
+		expandedTokenFile, err := homedir.Expand(cfg.vault.tokenFile)
 		if err != nil {
 			return nil, err
 		}
@@ -47,7 +60,7 @@ func NewRenderer(sealedSecretsControllerNamespace, vaultTokenFile, vaultEndpoint
 			return nil, err
 		}
 
-		vaultRenderer, err = template.NewVaultTemplateRenderer(string(vaultToken), vaultEndpoint)
+		vaultRenderer, err = template.NewVaultTemplateRenderer(string(vaultToken), cfg.vault.endpoint)
 
 		if err != nil {
 			return nil, err
@@ -55,8 +68,8 @@ func NewRenderer(sealedSecretsControllerNamespace, vaultTokenFile, vaultEndpoint
 	}
 
 	return &renderer{
-		vaultRenderer:                    vaultRenderer,
-		sealedSecretsControllerNamespace: sealedSecretsControllerNamespace,
+		vaultRenderer: vaultRenderer,
+		sealedSecrets: cfg.sealedSecrets,
 	}, nil
 }
 
@@ -114,8 +127,10 @@ func (r *renderer) renderSingleFile(inputFilePath, outputFilePath string) (err e
 
 func (r *renderer) sealSecret(secret string) (sealedSecret string, err error) {
 	args := []string{"--format", "yaml"}
-	if r.sealedSecretsControllerNamespace != "" {
-		args = append(args, "--controller-namespace", r.sealedSecretsControllerNamespace)
+	if r.sealedSecrets.publicKey != "" {
+		args = append(args, "--cert", r.sealedSecrets.publicKey)
+	} else if r.sealedSecrets.controllerNamespace != "" {
+		args = append(args, "--controller-namespace", r.sealedSecrets.controllerNamespace)
 	}
 	cmd := exec.Command("kubeseal", args...)
 	stdin, err := cmd.StdinPipe()
