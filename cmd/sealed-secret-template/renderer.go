@@ -5,16 +5,17 @@ import (
 	"encoding/base64"
 	"encoding/gob"
 	"fmt"
-	"github.com/actano/vault-template/pkg/template"
-	"github.com/mitchellh/go-homedir"
-	"github.com/bmatcuk/doublestar"
-	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/actano/vault-template/pkg/template"
+	"github.com/bmatcuk/doublestar"
+	"github.com/mitchellh/go-homedir"
+	"gopkg.in/yaml.v2"
 )
 
 type renderer struct {
@@ -23,6 +24,7 @@ type renderer struct {
 }
 
 var alreadyPrinted = make(map[string]bool)
+
 // printOnce prints any given message only once per program execution
 func printOnce(msg string) {
 	if alreadyPrinted[msg] != true {
@@ -37,12 +39,12 @@ func NewRenderer(sealedSecretsControllerNamespace, vaultTokenFile, vaultEndpoint
 	if vaultTokenFile != "" && vaultEndpoint != "" {
 		expandedTokenFile, err := homedir.Expand(vaultTokenFile)
 		if err != nil {
-            return nil, err
+			return nil, err
 		}
 		vaultToken, err := ioutil.ReadFile(expandedTokenFile)
 
 		if err != nil {
-            return nil, err
+			return nil, err
 		}
 
 		vaultRenderer, err = template.NewVaultTemplateRenderer(string(vaultToken), vaultEndpoint)
@@ -53,8 +55,8 @@ func NewRenderer(sealedSecretsControllerNamespace, vaultTokenFile, vaultEndpoint
 	}
 
 	return &renderer{
-		vaultRenderer: vaultRenderer,
-        sealedSecretsControllerNamespace: sealedSecretsControllerNamespace,
+		vaultRenderer:                    vaultRenderer,
+		sealedSecretsControllerNamespace: sealedSecretsControllerNamespace,
 	}, nil
 }
 
@@ -111,7 +113,7 @@ func (r *renderer) renderSingleFile(inputFilePath, outputFilePath string) (err e
 }
 
 func (r *renderer) sealSecret(secret string) (sealedSecret string, err error) {
-	args := []string { "--format", "yaml" }
+	args := []string{"--format", "yaml"}
 	if r.sealedSecretsControllerNamespace != "" {
 		args = append(args, "--controller-namespace", r.sealedSecretsControllerNamespace)
 	}
@@ -188,19 +190,19 @@ func (r *renderer) renderDir(inputDir, outputDir string) error {
 	matches, err := findFiles(inputDir, "*.template.yaml")
 
 	if err != nil {
-        return err
+		return err
 	}
 
 	inputOutputPaths, err := GetInputOutputPaths(matches, inputDir, outputDir)
 
 	if err != nil {
-        return err
+		return err
 	}
 
 	for _, match := range inputOutputPaths {
 		err = r.renderSingleFile(match.InputPath, match.OutputPath)
 		if err != nil {
-            return err
+			return err
 		}
 	}
 
@@ -218,7 +220,7 @@ func GetInputOutputPaths(matches []string, inputDir, outputDir string) (inputOut
 		inputFilename := filepath.Base(relativePath)
 		outputFileName := strings.Replace(inputFilename, ".template.yaml", ".sealed.yaml", 1)
 		outputFilePath := filepath.Join(outputDir, subPath, outputFileName)
-		inputOutputPaths = append(inputOutputPaths, InputOutputPaths {
+		inputOutputPaths = append(inputOutputPaths, InputOutputPaths{
 			InputPath:  match,
 			OutputPath: outputFilePath,
 		})
@@ -234,4 +236,3 @@ func findFiles(targetDir, pattern string) ([]string, error) {
 type InputOutputPaths struct {
 	InputPath, OutputPath string
 }
-

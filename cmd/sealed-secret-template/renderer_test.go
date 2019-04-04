@@ -1,8 +1,9 @@
 package main
 
 import (
-	"gotest.tools/assert"
 	"testing"
+
+	"gotest.tools/assert"
 )
 
 func TestGetInputOutputPaths(t *testing.T) {

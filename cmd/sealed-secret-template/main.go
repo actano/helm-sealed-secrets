@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/urfave/cli"
 	"os"
+
+	"github.com/urfave/cli"
 )
 
 func createRenderer(c *cli.Context) (*renderer, error) {
@@ -17,28 +18,28 @@ func main() {
 	app := cli.NewApp()
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
-			Name: "vault-address",
-			Usage: "Vault API endpoint",
+			Name:   "vault-address",
+			Usage:  "Vault API endpoint",
 			EnvVar: "VAULT_ADDR",
 		},
 		cli.StringFlag{
-			Name: "vault-token-file",
-			Usage: "Location of the vault token file",
+			Name:   "vault-token-file",
+			Usage:  "Location of the vault token file",
 			EnvVar: "VAULT_TOKEN_FILE",
-			Value: "~/.vault-token",
+			Value:  "~/.vault-token",
 		},
 		cli.StringFlag{
-			Name: "sealed-secrets-controller-namespace, c",
+			Name:  "sealed-secrets-controller-namespace, c",
 			Usage: "The namespace in which the sealed secrets controller runs",
 		},
 	}
 	app.Commands = []cli.Command{
 		{
-			Name: "enc",
+			Name:  "enc",
 			Usage: "encrypt a secret template into a sealed secret",
-			Action: func (c *cli.Context) error {
-                if c.NArg() < 2 {
-                	cli.ShowCommandHelpAndExit(c, "enc", 1)
+			Action: func(c *cli.Context) error {
+				if c.NArg() < 2 {
+					cli.ShowCommandHelpAndExit(c, "enc", 1)
 				}
 
 				renderer, err := createRenderer(c)
