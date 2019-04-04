@@ -5,4 +5,4 @@ description: |-
   This plugin provides secrets values encryption for Helm charts using the sealed-secrets tool
   (https://github.com/bitnami-labs/sealed-secrets).
 command: $HELM_PLUGIN_DIR/build/sealed-secret-template
-useTunnel: true
+useTunnel: false
