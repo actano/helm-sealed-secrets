@@ -26,13 +26,33 @@ GLOBAL OPTIONS:
    --config-file value                          Config file to configure the other flags (default: ".sealed-secrets.yaml")
    --vault.token-file value                     Location of the vault token file (default: "~/.vault-token")
    --vault.address value                        Vault API endpoint [$VAULT_ADDR]
-   --sealed-secrets.controller-namespace value  The namespace in which the sealed secrets controller runs
+   --sealed-secrets.public-key value            The public key for sealing the secrets.
+   --sealed-secrets.controller-namespace value  The namespace in which the sealed secrets controller runs. Only used if the sealed-secrets.public-key flag is not set.
    --help, -h                                   show help
+```
+
+### Config File
+
+The following options may also be defined via a config file in YAML format:
+* `vault.address`
+* `sealed-secrets.public-key`
+* `sealed-secrets.controller-namespace`
+
+The path to the config file can be specified with the global `--config-file` flag and defaults to `.sealed-secrets.yaml` in the current working directory.
+
+Example config YAML:
+
+```yaml
+vault:
+  address: https://vault.example.com
+sealed-secrets:
+  # controller-namespace: sealed-secrets
+  public-key: cert.pem
 ```
 
 ### Examples
 
-Read these examples to see how the program works.
+Read these examples to see how the plugin works.
 
 #### Single file
 
