@@ -2,7 +2,7 @@
 
 set -ueo pipefail
 
-VERSION=0.1.0
+VERSION=0.1.1
 
 if hash sealed-secret-template 2>/dev/null; then
   echo "sealed-secret-template is already installed"
