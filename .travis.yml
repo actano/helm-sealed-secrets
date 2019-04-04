@@ -1,8 +1,18 @@
 language: go
-
 script: go test -v ./...
-
 env:
+  matrix:
   - GO111MODULE=on
-
+  global:
+    secure: RWdhpV1KnYUzi2iyUvKcTkZj6eb4p3JaKYbiceXgyS0lZqJlry0BQnZruBFNwwg44D6tFAHQ9fo4tuln728/YOCwDqvoLNkCyUh0E3H7oNunlZyWvRyPaiQYlBETdgZoK+0nd03sPgJniMbLU6ZFRM+HY8NipC80OACDXhvJQ5IM/vBHC64pXGOYO+UaODxaGL+nzQNg4wrSc/cHqG8+JOM1Mr3BnUcyCNqSYfHS7F/MXjme4J2md2QEsh2QznkkPnqiE/PxjohT5EcHnChkiF7wBMiOUr2B+RAO4kIIu4EzPnuzcxlUKm7wrt5nzs0NBwpt0U9CvOsh+WwYrvGtX7KRqzdAiIRensz0QD/3DYausyRymXpH40bXlRIii0SaARiMMjjSf+E6zIMiIpeDhcK07NsqYbrbwdMq6DxI75LfWgs6nZ1apwR9rfnopvWEQorCSNpGt/nHpayxX1CLjDBhASnvGntYJij5ZCDmfmfgl5988Yl/nr0m+RacmiJa7P2QsXG6wknv0y4EsH6WaRL3t1Bi2gf2RmElh0jwmsl8XrtfPO7qjdE6k5Pubv6gS43L5l+UvIYamHlkhasSGJ+LiMdcytchAeW5hgRvpxOxHD7MzUDhfGL1OnHFdTwyOl0O7e73eka/8ARtT5lZWbpOpAitSc+OgtPPVFufs2w=
 install: true
+before_deploy:
+- make release-bin
+deploy:
+  provider: releases
+  api_key: $GITHUB_OAUTH_TOKEN
+  file_glob: true
+  file: "./build/*"
+  skip_cleanup: true
+  on:
+    tags: true
