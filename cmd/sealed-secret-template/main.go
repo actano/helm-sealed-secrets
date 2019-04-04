@@ -35,6 +35,7 @@ func MaybeLoadConfigFromFile(flags []cli.Flag) cli.BeforeFunc {
 
 func main() {
 	app := cli.NewApp()
+	app.HideVersion = true
 
 	flags := []cli.Flag{
 		cli.StringFlag{
