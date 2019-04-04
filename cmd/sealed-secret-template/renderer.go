@@ -7,17 +7,19 @@ import (
 	"fmt"
 	"github.com/actano/vault-template/pkg/template"
 	"github.com/mitchellh/go-homedir"
+	"github.com/bmatcuk/doublestar"
 	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 )
 
 type renderer struct {
-	vaultRenderer *template.VaultTemplateRenderer
-	cfg           *config
+	vaultRenderer                    *template.VaultTemplateRenderer
+	sealedSecretsControllerNamespace string
 }
 
 var alreadyPrinted = make(map[string]bool)
@@ -29,21 +31,21 @@ func printOnce(msg string) {
 	}
 }
 
-func NewRenderer(cfg *config) (*renderer, error) {
+func NewRenderer(sealedSecretsControllerNamespace, vaultTokenFile, vaultEndpoint string) (*renderer, error) {
 	var vaultRenderer *template.VaultTemplateRenderer
 
-	if cfg.VaultTokenFile != "" && cfg.VaultEndpoint != "" {
-		expandedTokenFile, err := homedir.Expand(cfg.VaultTokenFile)
+	if vaultTokenFile != "" && vaultEndpoint != "" {
+		expandedTokenFile, err := homedir.Expand(vaultTokenFile)
 		if err != nil {
-			panic(err)
+            return nil, err
 		}
 		vaultToken, err := ioutil.ReadFile(expandedTokenFile)
 
 		if err != nil {
-			panic(err)
+            return nil, err
 		}
 
-		vaultRenderer, err = template.NewVaultTemplateRenderer(string(vaultToken), cfg.VaultEndpoint)
+		vaultRenderer, err = template.NewVaultTemplateRenderer(string(vaultToken), vaultEndpoint)
 
 		if err != nil {
 			return nil, err
@@ -52,7 +54,7 @@ func NewRenderer(cfg *config) (*renderer, error) {
 
 	return &renderer{
 		vaultRenderer: vaultRenderer,
-		cfg:           cfg,
+        sealedSecretsControllerNamespace: sealedSecretsControllerNamespace,
 	}, nil
 }
 
@@ -110,8 +112,8 @@ func (r *renderer) renderSingleFile(inputFilePath, outputFilePath string) (err e
 
 func (r *renderer) sealSecret(secret string) (sealedSecret string, err error) {
 	args := []string { "--format", "yaml" }
-	if r.cfg.SealedSecretsControllerNamespace != "" {
-		args = append(args, "--controller-namespace", r.cfg.SealedSecretsControllerNamespace)
+	if r.sealedSecretsControllerNamespace != "" {
+		args = append(args, "--controller-namespace", r.sealedSecretsControllerNamespace)
 	}
 	cmd := exec.Command("kubeseal", args...)
 	stdin, err := cmd.StdinPipe()
@@ -180,5 +182,56 @@ func dataToBase64(secretContent string) (string, error) {
 	}
 
 	return string(out), nil
+}
+
+func (r *renderer) renderDir(inputDir, outputDir string) error {
+	matches, err := findFiles(inputDir, "*.template.yaml")
+
+	if err != nil {
+        return err
+	}
+
+	inputOutputPaths, err := GetInputOutputPaths(matches, inputDir, outputDir)
+
+	if err != nil {
+        return err
+	}
+
+	for _, match := range inputOutputPaths {
+		err = r.renderSingleFile(match.InputPath, match.OutputPath)
+		if err != nil {
+            return err
+		}
+	}
+
+	return nil
+}
+
+func GetInputOutputPaths(matches []string, inputDir, outputDir string) (inputOutputPaths []InputOutputPaths, err error) {
+	for _, match := range matches {
+		var relativePath string
+		relativePath, err = filepath.Rel(inputDir, match)
+		if err != nil {
+			return
+		}
+		subPath := filepath.Dir(relativePath)
+		inputFilename := filepath.Base(relativePath)
+		outputFileName := strings.Replace(inputFilename, ".template.yaml", ".sealed.yaml", 1)
+		outputFilePath := filepath.Join(outputDir, subPath, outputFileName)
+		inputOutputPaths = append(inputOutputPaths, InputOutputPaths {
+			InputPath:  match,
+			OutputPath: outputFilePath,
+		})
+	}
+	return
+}
+
+func findFiles(targetDir, pattern string) ([]string, error) {
+	globPattern := filepath.Join(targetDir, "**", pattern)
+	return doublestar.Glob(globPattern)
+}
+
+type InputOutputPaths struct {
+	InputPath, OutputPath string
 }
 

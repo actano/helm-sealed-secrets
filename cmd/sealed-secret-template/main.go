@@ -1,105 +1,86 @@
 package main
 
 import (
-	"github.com/Luzifer/rconfig"
-	"github.com/bmatcuk/doublestar"
+	"github.com/urfave/cli"
 	"os"
-	"path/filepath"
-	"strings"
 )
 
-type config struct {
-    VaultEndpoint                    string `flag:"vault-address" env:"VAULT_ADDR" default:"https://127.0.0.1:8200" description:"Optional. Vault API endpoint. Also configurable via VAULT_ADDR."`
-    VaultTokenFile                   string `flag:"vault-token-file" env:"VAULT_TOKEN_FILE" default:"~/.vault-token" description:"Optional. The file which contains the vault token. Also configurable via VAULT_TOKEN_FILE."`
-    SealedSecretsControllerNamespace string `flag:"sealed-secrets-controller-namespace,c" description:"Sealed secret controller namespace"`
-    InputFile                        string `flag:"input-file,i" description:"The input secret template which should be rendered and sealed."`
-    OutputFile                       string `flag:"output-file,o" description:"The output file path where the sealed secret should be written to."`
-    InputDir                         string `flag:"input-dir,I" description:"The directory in which to find secret templates to render and seal. Files must match the pattern '<filename>.template.yaml'. The folder structure will be preserved and created at the configured output dir."`
-    OutputDir                        string `flag:"output-dir,O" description:"The directory in which to put the rendered sealed secret files. The directory structure from the input directory will be preserved."`
-}
+func createRenderer(c *cli.Context) (*renderer, error) {
+	vaultEndpoint := c.GlobalString("vault-address")
+	vaultTokenFile := c.GlobalString("vault-token-file")
+	sealedSecretsControllerNamespace := c.GlobalString("sealed-secrets-controller-namespace")
 
-func printUsage(msg string) {
-    println(msg)
-    rconfig.Usage()
-    os.Exit(1)
-}
-
-func parseConfig() (*config, error) {
-    cfg := &config{}
-    err := rconfig.Parse(cfg)
-    return cfg, err
-}
-
-func findFiles(targetDir, pattern string) ([]string, error) {
-	globPattern := filepath.Join(targetDir, "**", pattern)
-	return doublestar.Glob(globPattern)
-}
-
-type InputOutputPaths struct {
-	InputPath, OutputPath string
-}
-
-func GetInputOutputPaths(matches []string, inputDir, outputDir string) (inputOutputPaths []InputOutputPaths, err error) {
-	for _, match := range matches {
-		var relativePath string
-		relativePath, err = filepath.Rel(inputDir, match)
-		if err != nil {
-			return
-		}
-		subPath := filepath.Dir(relativePath)
-		inputFilename := filepath.Base(relativePath)
-		outputFileName := strings.Replace(inputFilename, ".template.yaml", ".sealed.yaml", 1)
-		outputFilePath := filepath.Join(outputDir, subPath, outputFileName)
-		inputOutputPaths = append(inputOutputPaths, InputOutputPaths {
-			InputPath:  match,
-			OutputPath: outputFilePath,
-		})
-	}
-	return
+	return NewRenderer(sealedSecretsControllerNamespace, vaultTokenFile, vaultEndpoint)
 }
 
 func main() {
-    cfg, err := parseConfig()
+	app := cli.NewApp()
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name: "vault-address",
+			Usage: "Vault API endpoint",
+			EnvVar: "VAULT_ADDR",
+		},
+		cli.StringFlag{
+			Name: "vault-token-file",
+			Usage: "Location of the vault token file",
+			EnvVar: "VAULT_TOKEN_FILE",
+			Value: "~/.vault-token",
+		},
+		cli.StringFlag{
+			Name: "sealed-secrets-controller-namespace, c",
+			Usage: "The namespace in which the sealed secrets controller runs",
+		},
+	}
+	app.Commands = []cli.Command{
+		{
+			Name: "enc",
+			Usage: "encrypt a secret template into a sealed secret",
+			Action: func (c *cli.Context) error {
+                if c.NArg() < 2 {
+                	cli.ShowCommandHelpAndExit(c, "enc", 1)
+				}
 
-    if err != nil {
-    	printUsage("")
-        panic(err)
-    }
+				renderer, err := createRenderer(c)
 
-    renderer, err := NewRenderer(cfg)
+				if err != nil {
+					return err
+				}
 
-    if err != nil {
+				inputFile := c.Args().Get(0)
+				outputFile := c.Args().Get(1)
+
+				return renderer.renderSingleFile(inputFile, outputFile)
+			},
+			ArgsUsage: "[input file] [output file]",
+		},
+		{
+			Name:      "enc-dir",
+			ArgsUsage: "[input directory] [output directory]",
+			Usage:     "encrypt all secret templates in a directory structure",
+			UsageText: "Encrypts all files with the pattern '*.template.yaml' in the given input directory including all subdirectories. The sealed secrets will be written to the given output directory according to the same directory structure as the input directory.",
+			Action: func(c *cli.Context) error {
+				if c.NArg() < 2 {
+					cli.ShowCommandHelpAndExit(c, "enc-dir", 1)
+				}
+
+				renderer, err := createRenderer(c)
+
+				if err != nil {
+					return err
+				}
+
+				inputDir := c.Args().Get(0)
+				outputDir := c.Args().Get(1)
+
+				return renderer.renderDir(inputDir, outputDir)
+			},
+		},
+	}
+
+	err := app.Run(os.Args)
+
+	if err != nil {
 		panic(err)
-    }
-
-    if cfg.InputFile != "" && cfg.OutputFile != "" {
-        err = renderer.renderSingleFile(cfg.InputFile, cfg.OutputFile)
-        if err != nil {
-            panic(err)
-        }
-        return
-    }
-
-    if cfg.InputDir != "" && cfg.OutputDir != "" {
-    	matches, err := findFiles(cfg.InputDir, "*.template.yaml")
-
-		if err != nil {
-			panic(err)
-		}
-
-    	inputOutputPaths, err := GetInputOutputPaths(matches, cfg.InputDir, cfg.OutputDir)
-
-    	if err != nil {
-    		panic(err)
-		}
-    	for _, match := range inputOutputPaths {
-    		err = renderer.renderSingleFile(match.InputPath, match.OutputPath)
-    		if err != nil {
-    			panic(err)
-			}
-		}
-    	return
-    }
-
-    printUsage("")
+	}
 }
