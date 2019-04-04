@@ -9,13 +9,26 @@ This way, you can store both the template and their rendered representation in g
 helm install https://github.com/actano/helm-sealed-secrets
 ```
 
-### Configuration
-| Parameter                                    | Description                          | Default                                                                                        |
-| ---------------------------------            | ------------------------------------ | ----------------------------------------------------------------------------                   |
-| `-c, --sealed-secrets-controller-namespace`  | Sealed secrets controller namespace  | `kube-system` as defined in [`sealed-secrets`](https://github.com/bitnami-labs/sealed-secrets) |
-| `--vault-address`, env `VAULT_ADDR`          | Vault endpoint address               | `https://127.0.0.1:8200`                                                                       |
-| `--vault-token-file`, env `VAULT_TOKEN_FILE` | Your personal vault token file       | Not set                                                                                        |
+### Usage
+```
+NAME:
+   sealed-secret-template - A new cli application
 
+USAGE:
+   sealed-secret-template [global options] command [command options] [arguments...]
+
+COMMANDS:
+     enc      encrypt a secret template into a sealed secret
+     enc-dir  encrypt all secret templates in a directory structure
+     help, h  Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --config-file value                          Config file to configure the other flags (default: ".sealed-secrets.yaml")
+   --vault.token-file value                     Location of the vault token file (default: "~/.vault-token")
+   --vault.address value                        Vault API endpoint [$VAULT_ADDR]
+   --sealed-secrets.controller-namespace value  The namespace in which the sealed secrets controller runs
+   --help, -h                                   show help
+```
 
 ### Examples
 
@@ -39,7 +52,7 @@ data:
 Executing
 
 ```bash
-helm sealed-secrets -i my-secret.template.yaml -o my-secret.yaml
+helm sealed-secrets enc my-secret.template.yaml my-secret.yaml
 ```
 
 gives you a file `my-secret.yaml`
@@ -74,7 +87,7 @@ Given this file structure
 Executing
 
 ```bash
-helm sealed-secrets -I ./secret-templates -O ./secret-sealed --vault-token-file /Users/myuser/.vault-token
+helm sealed-secrets --vault.token-file /Users/myuser/.vault-token enc-dir ./secret-templates ./secret-sealed
 ```
 
 will create the folder structure below `./secret-sealed` and write the sealed secrets in the corresponding folders as `<name>.sealed.yaml`.
