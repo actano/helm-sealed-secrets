@@ -1,5 +1,7 @@
 # helm-sealed-secrets
 
+[![Build Status](https://travis-ci.com/actano/helm-sealed-secrets.svg?branch=master)](https://travis-ci.com/actano/helm-sealed-secrets)
+
 This plugin is used to generate sealed secrets out of secret. It supports template files with vault paths.
 This way, you can store both the template and their rendered representation in git.
 
