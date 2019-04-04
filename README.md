@@ -12,7 +12,7 @@ helm install https://github.com/actano/helm-sealed-secrets
 ### Usage
 ```
 NAME:
-   sealed-secret-template - A new cli application
+   sealed-secret-template - Seal your secrets
 
 USAGE:
    sealed-secret-template [global options] command [command options] [arguments...]
@@ -26,7 +26,7 @@ GLOBAL OPTIONS:
    --config-file value                          Config file to configure the other flags (default: ".sealed-secrets.yaml")
    --vault.token-file value                     Location of the vault token file (default: "~/.vault-token")
    --vault.address value                        Vault API endpoint [$VAULT_ADDR]
-   --sealed-secrets.public-key value            The public key for sealing the secrets.
+   --sealed-secrets.public-key value            Path to a file which contains the public key for sealing the secrets.
    --sealed-secrets.controller-namespace value  The namespace in which the sealed secrets controller runs. Only used if the sealed-secrets.public-key flag is not set.
    --help, -h                                   show help
 ```
