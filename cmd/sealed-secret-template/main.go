@@ -42,7 +42,7 @@ func MaybeLoadConfigFromFile(flags []cli.Flag) cli.BeforeFunc {
 
 func main() {
 	app := cli.NewApp()
-	app.Version = "0.1.3"
+	app.Version = "0.1.4"
 	app.Usage = "Seal your secrets"
 
 	flags := []cli.Flag{
