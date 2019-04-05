@@ -20,7 +20,7 @@ USAGE:
    helm-sealed-secrets [global options] command [command options] [arguments...]
 
 VERSION:
-   0.1.5
+   0.2.0
 
 COMMANDS:
      enc      encrypt a secret template into a sealed secret
