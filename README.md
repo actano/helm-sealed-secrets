@@ -14,10 +14,13 @@ helm plugin install https://github.com/actano/helm-sealed-secrets
 ### Usage
 ```
 NAME:
-   sealed-secret-template - Seal your secrets
+   helm-sealed-secrets - Seal your secrets
 
 USAGE:
-   sealed-secret-template [global options] command [command options] [arguments...]
+   helm-sealed-secrets [global options] command [command options] [arguments...]
+
+VERSION:
+   0.1.5
 
 COMMANDS:
      enc      encrypt a secret template into a sealed secret
@@ -31,6 +34,7 @@ GLOBAL OPTIONS:
    --sealed-secrets.public-key value            Path to a file which contains the public key for sealing the secrets.
    --sealed-secrets.controller-namespace value  The namespace in which the sealed secrets controller runs. Only used if the sealed-secrets.public-key flag is not set.
    --help, -h                                   show help
+   --version, -v                                print the version
 ```
 
 ### Config File

@@ -5,15 +5,15 @@ set -ueo pipefail
 VERSION=0.1.5
 
 function isAlreadyInstalled() {
-  hash sealed-secret-template 2>/dev/null && [[ $(sealed-secret-template -v | cut -d " " -f 3) == ${VERSION} ]]
+  hash helm-sealed-secrets 2>/dev/null && [[ $(helm-sealed-secrets -v | cut -d " " -f 3) == ${VERSION} ]]
 }
 
 if isAlreadyInstalled; then
-  echo "sealed-secret-template is already installed"
+  echo "helm-sealed-secrets is already installed"
 else
-  echo "Downloading sealed-secret-template version ${VERSION}"
+  echo "Downloading helm-sealed-secrets version ${VERSION}"
   OS=$(uname | tr '[:upper:]' '[:lower:]')
-  URL=https://github.com/actano/helm-sealed-secrets/releases/download/${VERSION}/sealed-secret-template_${OS}_amd64
+  URL=https://github.com/actano/helm-sealed-secrets/releases/download/${VERSION}/helm-sealed-secrets_${OS}_amd64
 
   temp_file=$(mktemp)
   trap "rm ${temp_file}" EXIT
@@ -25,6 +25,6 @@ else
     exit 1
   fi
 
-  cp ${temp_file} /usr/local/bin/sealed-secret-template
-  chmod +x /usr/local/bin/sealed-secret-template
+  cp ${temp_file} /usr/local/bin/helm-sealed-secrets
+  chmod +x /usr/local/bin/helm-sealed-secrets
 fi

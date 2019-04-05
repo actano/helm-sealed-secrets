@@ -4,7 +4,7 @@ usage: Sealed Secrets encryption in Helm for Git storing
 description: |-
   This plugin provides secrets values encryption for Helm charts using the sealed-secrets tool
   (https://github.com/bitnami-labs/sealed-secrets).
-command: sealed-secret-template
+command: helm-sealed-secrets
 useTunnel: false
 hooks:
   install: $HELM_PLUGIN_DIR/install-binary.sh
