@@ -8,7 +8,7 @@ This way, you can store both the template and their rendered representation in g
 ### Installation
 
 ```bash
-helm install https://github.com/actano/helm-sealed-secrets
+helm plugin install https://github.com/actano/helm-sealed-secrets
 ```
 
 ### Usage
