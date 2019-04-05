@@ -7,6 +7,8 @@ import (
 	"gopkg.in/urfave/cli.v1/altsrc"
 )
 
+var Version = "0.0.0"
+
 func createRenderer(c *cli.Context) (*renderer, error) {
 	cfg := rendererConfig{
 		sealedSecrets: sealedSecretsConfig{
@@ -42,7 +44,7 @@ func MaybeLoadConfigFromFile(flags []cli.Flag) cli.BeforeFunc {
 
 func main() {
 	app := cli.NewApp()
-	app.Version = "0.1.4"
+	app.Version = Version
 	app.Usage = "Seal your secrets"
 
 	flags := []cli.Flag{
