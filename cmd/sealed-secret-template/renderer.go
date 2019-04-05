@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"encoding/base64"
-	"encoding/gob"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -161,16 +159,6 @@ func (r *renderer) sealSecret(secret string) (sealedSecret string, err error) {
 	return
 }
 
-func getBytes(key interface{}) ([]byte, error) {
-	var buf bytes.Buffer
-	enc := gob.NewEncoder(&buf)
-	err := enc.Encode(key)
-	if err != nil {
-		return nil, err
-	}
-	return buf.Bytes(), nil
-}
-
 func dataToBase64(secretContent string) (string, error) {
 	secret := yaml.MapSlice{}
 	err := yaml.Unmarshal([]byte(secretContent), &secret)
@@ -183,7 +171,7 @@ func dataToBase64(secretContent string) (string, error) {
 		if item.Key == "data" {
 			data := item.Value.(yaml.MapSlice)
 			for k, dataItem := range data {
-				valueBytes, err := getBytes(dataItem.Value)
+				valueBytes := []byte(dataItem.Value.(string))
 				if err != nil {
 					return "", err
 				}
