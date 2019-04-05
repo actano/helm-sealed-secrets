@@ -43,7 +43,9 @@ data:
   foo: bar
   secret: |
     hello: world
-    answer: 42`
+    answer: 42
+  over: 9000
+  logic: false`
 	output, err := dataToBase64(input)
 	assert.NilError(t, err)
 
@@ -58,6 +60,8 @@ data:
 		Data struct {
 			Foo    string `yaml:"foo"`
 			Secret string `yaml:"secret"`
+			Over   string `yaml:"over"`
+			Logic  string `yaml:"logic"`
 		} `yaml:"data"`
 	}{}
 	err = yaml.Unmarshal([]byte(output), &outputYaml)
@@ -73,5 +77,11 @@ data:
 	assert.Equal(t, string(fooDecoded), "bar")
 
 	barDecoded, err := base64.StdEncoding.DecodeString(outputYaml.Data.Secret)
-	assert.Equal(t, string(barDecoded), "hello: world\nanswer: 42")
+	assert.Equal(t, string(barDecoded), "hello: world\nanswer: 42\n")
+
+	overDecoded, err := base64.StdEncoding.DecodeString(outputYaml.Data.Over)
+	assert.Equal(t, string(overDecoded), "9000")
+
+	logicDecoded, err := base64.StdEncoding.DecodeString(outputYaml.Data.Logic)
+	assert.Equal(t, string(logicDecoded), "false")
 }

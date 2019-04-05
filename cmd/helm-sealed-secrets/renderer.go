@@ -171,7 +171,7 @@ func dataToBase64(secretContent string) (string, error) {
 		if item.Key == "data" {
 			data := item.Value.(yaml.MapSlice)
 			for k, dataItem := range data {
-				valueBytes := []byte(dataItem.Value.(string))
+				valueBytes := []byte(fmt.Sprintf("%v", dataItem.Value))
 				if err != nil {
 					return "", err
 				}
