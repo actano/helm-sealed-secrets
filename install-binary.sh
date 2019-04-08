@@ -3,6 +3,26 @@
 set -ueo pipefail
 
 VERSION=0.2.1
+KUBESEAL_VERSION=0.2.2
+
+if ! hash kubeseal 2>/dev/null; then
+  echo "kubeseal not found. Installing kubeseal"
+  if [[ "$(uname)" == "Darwin" ]]; then
+    brew install kubeseal
+  elif [[ "$(uname)" == "Linux" ]]; then
+    temp_file=$(mktemp)
+    trap "rm ${temp_file}" EXIT
+    statuscode=$(curl -w "%{http_code}" -sL "https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBESEAL_VERSION}/kubeseal-linux-amd64" -o ${temp_file})
+
+    if [[ ! "${statuscode}" == "200" ]]; then
+      echo "Failed to download kubeseal"
+      exit 1
+    fi
+
+    cp ${temp_file} /usr/local/bin/kubeseal
+    chmod +x /usr/local/bin/kubeseal
+  fi
+fi
 
 function isAlreadyInstalled() {
   hash helm-sealed-secrets 2>/dev/null && [[ $(helm-sealed-secrets -v | cut -d " " -f 3) == ${VERSION} ]]
