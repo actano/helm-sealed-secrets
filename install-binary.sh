@@ -2,7 +2,7 @@
 
 set -ueo pipefail
 
-VERSION=0.2.1
+VERSION=0.2.2
 KUBESEAL_VERSION=0.2.2
 
 if ! hash kubeseal 2>/dev/null; then
