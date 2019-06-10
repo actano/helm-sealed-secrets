@@ -5,6 +5,10 @@
 This plugin is used to generate sealed secrets out of secrets. It supports template files with vault paths.
 This way, you can store both the template and their rendered representation in git.
 
+### Prerequisites
+
+We are using the [`kubeseal` binary](https://github.com/bitnami-labs/sealed-secrets) and expect it to be installed.
+
 ### Installation
 
 ```bash
