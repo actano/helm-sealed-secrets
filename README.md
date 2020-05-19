@@ -1,132 +1,60 @@
-# helm-sealed-secrets
+# helm-vault-template
 
-[![Build Status](https://travis-ci.com/actano/helm-sealed-secrets.svg?branch=master)](https://travis-ci.com/actano/helm-sealed-secrets)
-
-This plugin is used to generate sealed secrets out of secrets. It supports template files with vault paths.
-This way, you can store both the template and their rendered representation in git.
-
-### Prerequisites
-
-We are using the [`kubeseal` binary](https://github.com/bitnami-labs/sealed-secrets) and expect it to be installed.
+This plugin intergrates with Vault to render a template file with Vault paths to a file. Useful to prepare a `values.yaml` file to deploy a helm chart.
 
 ### Installation
 
 ```bash
-helm plugin install https://github.com/actano/helm-sealed-secrets
+helm plugin install https://github.com/minhdanh/helm-vault-template
 ```
 
 ### Usage
 ```
 NAME:
-   helm-sealed-secrets - Seal your secrets
+   helm-vault-template - Render a template file
 
 USAGE:
-   helm-sealed-secrets [global options] command [command options] [arguments...]
+   helm-vault-template [global options] command [arguments...]
 
 VERSION:
-   0.2.0
+   0.0.1
 
 COMMANDS:
-     enc      encrypt a secret template into a sealed secret
-     enc-dir  encrypt all secret templates in a directory structure
-     help, h  Shows a list of commands or help for one command
+     render       Render a template file to a file
+     help, h      Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --config-file value                          Config file to configure the other flags (default: ".sealed-secrets.yaml")
-   --vault.token-file value                     Location of the vault token file (default: "~/.vault-token")
-   --vault.address value                        Vault API endpoint [$VAULT_ADDR]
-   --sealed-secrets.public-key value            Path to a file which contains the public key for sealing the secrets.
-   --sealed-secrets.controller-namespace value  The namespace in which the sealed secrets controller runs. Only used if the sealed-secrets.public-key flag is not set.
-   --help, -h                                   show help
-   --version, -v                                print the version
-```
-
-### Config File
-
-The following options may also be defined via a config file in YAML format:
-* `vault.address`
-* `sealed-secrets.public-key`
-* `sealed-secrets.controller-namespace`
-
-The path to the config file can be specified with the global `--config-file` flag and defaults to `.sealed-secrets.yaml` in the current working directory.
-
-Example config YAML:
-
-```yaml
-vault:
-  address: https://vault.example.com
-sealed-secrets:
-  # controller-namespace: sealed-secrets
-  public-key: cert.pem
+   --vault.token value                     Vault token [$VAULT_TOKEN]
+   --vault.address value                   Vault API endpoint [$VAULT_ADDR]
+   --help, -h                              show help
+   --version, -v                           print the version
 ```
 
 ### Examples
 
-Read these examples to see how the plugin works.
-
-#### Single file
-
-Specify a secret template `my-secret.template.yaml`.
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: my-secret-name
-  namespace: dev
-type: Opaque
-data:
-  username: {{ vault "secret/myservice/admin-user" "username" }}
-  password: {{ vault "secret/myservice/admin-user" "password" }}
-```
-
-Executing
-
-```bash
-helm sealed-secrets enc my-secret.template.yaml my-secret.yaml
-```
-
-gives you a file `my-secret.yaml`
+Prepare a template file `values.vault.yaml`.
 
 ```yaml
-apiVersion: bitnami.com/v1alpha1
-kind: SealedSecret
-metadata:
-  creationTimestamp: null
-  name: my-secret-name
-  namespace: dev
-spec:
-  encryptedData:
-    username: 7tgrVWorKLqoZc...
-    password: LbeaMTWxTpWAKD...
+config:
+  username: {{ vault "secret/data/myservice/admin-user" "username" }}
+  password: {{ vault "secret/data/myservice/admin-user" "password" }}
 ```
 
-#### Folders
-
-The names of your secret templates must match the pattern `<name>.template.yaml`.
-
-Given this file structure
-```
-└── secret-templates
-    └── releases
-        ├── dev
-        │   └── my-secret.template.yaml
-        └── prod
-            └── my-secret.template.yaml
-```
-
-Executing
+To render the template:
 
 ```bash
-helm sealed-secrets --vault.token-file /Users/myuser/.vault-token enc-dir ./secret-templates ./secret-sealed
+helm vault-template render values.vault.yaml values.yaml
 ```
 
-will create the folder structure below `./secret-sealed` and write the sealed secrets in the corresponding folders as `<name>.sealed.yaml`.
-
+`values.yaml` will look like:
+```yaml
+config:
+  username: admin
+  password: P@ssw0rd
 ```
-└── secret-sealed
-    └── releases
-        ├── dev
-        │   └── my-secret.sealed.yaml
-        └── prod
-            └── my-secret.sealed.yaml
+
+You can also print the output file to stdout:
+
+```bash
+helm vault-template render values.vault.yaml -
 ```
