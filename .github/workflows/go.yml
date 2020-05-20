@@ -22,10 +22,12 @@ jobs:
       - name: Install all Go dependencies
         run: |
           go get
-          go get github.com/tcnksm/ghr
 
       - name: Build
         run: make release-bin
 
       - name: Create release
-        run: ghr -t ${{ secrets.GITHUB_TOKEN }} -c ${{ github.ref }} -delete ${{ github.ref }} ./build
+        run: |
+          export PATH=$PATH:$(go env GOPATH)/bin
+          go get github.com/tcnksm/ghr
+          ghr -t ${{ secrets.GITHUB_TOKEN }} -c ${{ github.ref }} -delete ${{ github.ref }} ./build
