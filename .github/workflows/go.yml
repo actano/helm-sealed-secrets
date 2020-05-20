@@ -20,8 +20,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install all Go dependencies
-        run: |
-          go get
+        run: go get
 
       - name: Build
         run: make release-bin
@@ -30,4 +29,4 @@ jobs:
         run: |
           export PATH=$PATH:$(go env GOPATH)/bin
           go get github.com/tcnksm/ghr
-          ghr -t ${{ secrets.GITHUB_TOKEN }} -c ${{ github.ref }} -delete ${{ github.ref }} ./build
+          ghr -t ${{ secrets.GITHUB_TOKEN }} -c ${{ github.sha }} -delete ${GITHUB_REF#refs/*/} ./build
