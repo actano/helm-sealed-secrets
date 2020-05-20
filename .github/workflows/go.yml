@@ -25,13 +25,11 @@ jobs:
       - name: Build
         run: make release-bin
 
-      - name: Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create release
+        uses: meeDamian/github-release@2.0
         with:
-          tag_name: ${{ github.ref }}
-          release_name: ${{ github.ref }}
-          draft: false
-          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          name: ${{ github.ref }}
+          allow_override: true
           files: ./build/
