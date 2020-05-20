@@ -5,7 +5,7 @@ This plugin intergrates with Vault to render a template file with Vault paths to
 ### Installation
 
 ```bash
-helm plugin install https://github.com/minhdanh/helm-vault-template
+helm plugin install https://github.com/cxagroup/helm-vault-template
 ```
 
 ### Usage

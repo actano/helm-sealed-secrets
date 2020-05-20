@@ -15,7 +15,7 @@ if isAlreadyInstalled; then
 else
   echo "Downloading helm-vault-template version ${VERSION}"
   OS=$(uname | tr '[:upper:]' '[:lower:]')
-  URL=https://github.com/minhdanh/helm-vault-template/releases/download/${VERSION}/helm-vault-template_${OS}_amd64
+  URL=https://github.com/cxagroup/helm-vault-template/releases/download/${VERSION}/helm-vault-template_${OS}_amd64
 
   temp_file=$(mktemp)
   trap "rm ${temp_file}" EXIT
