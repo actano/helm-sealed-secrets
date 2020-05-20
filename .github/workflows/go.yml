@@ -20,16 +20,12 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install all Go dependencies
-        run: go get
+        run: |
+          go get
+          go get github.com/tcnksm/ghr
 
       - name: Build
         run: make release-bin
 
       - name: Create release
-        uses: meeDamian/github-release@2.0
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref }}
-          name: ${{ github.ref }}
-          allow_override: true
-          files: ./build/
+        run: ghr -t ${{ secrets.GITHUB_TOKEN }} -c ${{ github.ref }} -delete ${{ github.ref }} ./build
