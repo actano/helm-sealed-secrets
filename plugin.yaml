@@ -1,5 +1,5 @@
 name: sealed-secrets
-version: 0.16.1
+version: 0.16.3
 usage: Sealed Secrets encryption in Helm for Git storing
 description: |-
   This plugin provides secrets values encryption for Helm charts using the sealed-secrets tool
