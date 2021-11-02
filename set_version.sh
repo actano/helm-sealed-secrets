@@ -9,6 +9,6 @@ fi
 
 VERSION=$1
 
-sed -i "s/VERSION=.*/VERSION=${VERSION}/g" install-binary.sh
+sed -i "s/^VERSION=.*/VERSION=${VERSION}/g" install-binary.sh
 sed -i "s/version: .*/version: ${VERSION}/g" plugin.yaml
 sed -i "s/VERSION=.*/VERSION=${VERSION}/g" Makefile
