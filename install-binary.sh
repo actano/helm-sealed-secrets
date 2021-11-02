@@ -15,7 +15,7 @@ if ! hash kubeseal 2>/dev/null; then
     statuscode=$(curl -w "%{http_code}" -sL "https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBESEAL_VERSION}/kubeseal-linux-amd64" -o ${temp_file})
 
     if [[ ! "${statuscode}" == "200" ]]; then
-      echo "Failed to download kubeseal"
+      echo "Failed to download kubeseal: Status code ${statuscode}"
       exit 1
     fi
 
