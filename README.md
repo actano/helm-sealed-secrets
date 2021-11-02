@@ -139,9 +139,7 @@ This plugin is open source & built by travis.
 
 - kubeseal version is defined in `./install-binary.sh`
 - Deploying a new version:
-  - `./set_version.sh 0.16.5`
-  - `git commit -am 'Bump version to 0.16.5'`
-  - `git tag 0.16.5`
+  - `./set_version.sh 0.16.5` (this creates a new version and tags it)
   - `git push --tags && git push`
 
 #### Updating the travis deploy token
