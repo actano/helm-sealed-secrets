@@ -23,3 +23,7 @@ sed -i "s/VERSION=.*/VERSION=$VERSION/g" Makefile
 
 git commit -am "Bump version to \`$VERSION\`"
 git tag $VERSION
+
+echo 'Done.'
+echo 'You can now push the new version:'
+echo 'git push --tags && git push'
