@@ -5,6 +5,8 @@
 This plugin is used to generate sealed secrets out of secrets. It supports template files with vault paths.
 This way, you can store both the template and their rendered representation in git.
 
+For Development see [the development section](#development)
+
 ### Prerequisites
 
 We are using the [`kubeseal` binary](https://github.com/bitnami-labs/sealed-secrets) and expect it to be installed.
@@ -130,3 +132,24 @@ will create the folder structure below `./secret-sealed` and write the sealed se
         └── prod
             └── my-secret.sealed.yaml
 ```
+
+### Development
+
+This plugin is open source & built by travis.
+
+- kubeseal version is defined in `./install-binary.sh`
+- Deploying a new version:
+  - `./set_version.sh 0.16.5`
+  - `git commit -am 'Bump version to 0.16.5'`
+  - `git tag 0.16.5`
+  - `git push --tags && git push`
+
+#### Updating the travis deploy token
+The deployment uses github releases as defined in `./travis.yml`.
+The deployment token is created as documented in [here](https://docs.travis-ci.com/user/deployment/releases/#authenticating-with-an-oauth-token).
+
+Recreate the token:
+- create a token in your github account with 'global_repos' permission
+- `travis encrypt -r actano/helm-sealed-secrets --com`
+- enter the token
+- Replace the api_token content with the resulting string
