@@ -7,8 +7,19 @@ if [[ $# < 1 ]]; then
   exit 1
 fi
 
+if [[  $(git diff --stat) != '' ]]; then
+  echo 'Please commit your local changes first.'
+  exit 1
+fi
+
 VERSION=$1
 
-sed -i "s/^VERSION=.*/VERSION=${VERSION}/g" install-binary.sh
-sed -i "s/version: .*/version: ${VERSION}/g" plugin.yaml
-sed -i "s/VERSION=.*/VERSION=${VERSION}/g" Makefile
+echo "Updating to version $VERSION. Please press Enter to start or CMD+C to cancel"
+read ignore
+
+sed -i "s/^VERSION=.*/VERSION=$VERSION/g" install-binary.sh
+sed -i "s/version: .*/version: $VERSION/g" plugin.yaml
+sed -i "s/VERSION=.*/VERSION=$VERSION/g" Makefile
+
+git commit -am "Bump version to \`$VERSION\`"
+git tag $VERSION
