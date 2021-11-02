@@ -12,7 +12,7 @@ if ! hash kubeseal 2>/dev/null; then
   elif [[ "$(uname)" == "Linux" ]]; then
     temp_file=$(mktemp)
     trap "rm ${temp_file}" EXIT
-    statuscode=$(curl -w "%{http_code}" -sL "https://github.com/bitnami-labs/sealed-secrets/releases/download/${KUBESEAL_VERSION}/kubeseal-linux-amd64" -o ${temp_file})
+    statuscode=$(curl -w "%{http_code}" -sL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-linux-amd64" -o ${temp_file})
 
     if [[ ! "${statuscode}" == "200" ]]; then
       echo "Failed to download kubeseal: Status code ${statuscode}"
