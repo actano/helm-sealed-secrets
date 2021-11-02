@@ -3,26 +3,6 @@
 set -ueo pipefail
 
 VERSION=0.16.4
-KUBESEAL_VERSION=0.16.0
-
-if ! hash kubeseal 2>/dev/null; then
-  echo "kubeseal not found. Installing kubeseal"
-  if [[ "$(uname)" == "Darwin" ]]; then
-    brew install kubeseal
-  elif [[ "$(uname)" == "Linux" ]]; then
-    temp_file=$(mktemp)
-    trap "rm ${temp_file}" EXIT
-    statuscode=$(curl -w "%{http_code}" -sL "https://github.com/bitnami-labs/sealed-secrets/releases/download/v${KUBESEAL_VERSION}/kubeseal-linux-amd64" -o ${temp_file})
-
-    if [[ ! "${statuscode}" == "200" ]]; then
-      echo "Failed to download kubeseal: Status code ${statuscode}"
-      exit 1
-    fi
-
-    cp ${temp_file} /usr/local/bin/kubeseal
-    chmod +x /usr/local/bin/kubeseal
-  fi
-fi
 
 function isAlreadyInstalled() {
   hash helm-sealed-secrets 2>/dev/null && [[ $(helm-sealed-secrets -v | cut -d " " -f 3) == ${VERSION} ]]
@@ -45,6 +25,9 @@ else
     exit 1
   fi
 
-  cp ${temp_file} /usr/local/bin/helm-sealed-secrets
-  chmod +x /usr/local/bin/helm-sealed-secrets
+  cp ${temp_file} $HELM_PLUGINS/helm-sealed-secrets
+  chmod +x $HELM_PLUGINS/helm-sealed-secrets
+  echo '#################### IMPORTANT #################################'
+  echo "Please add '$HELM_PLUGINS' to your PATH or the plugin won't work"
+  echo '################################################################'
 fi
