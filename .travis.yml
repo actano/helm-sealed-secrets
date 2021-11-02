@@ -13,6 +13,5 @@ deploy:
   file_glob: true
   file: "./build/*"
   skip_cleanup: true
-  draft: true
-#  on:
-#    tags: true
+  on:
+    tags: true
