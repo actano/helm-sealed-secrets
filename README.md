@@ -137,8 +137,7 @@ will create the folder structure below `./secret-sealed` and write the sealed se
 
 This plugin is open source & built by travis.
 
-- kubeseal version is defined in `./install-binary.sh`
-- Deploying a new version:
+- Deploying a new version (only needed if the go code changed):
   - `./set_version.sh 0.16.5` (this creates a new version and tags it)
   - `git push --tags && git push`
 
