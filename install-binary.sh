@@ -25,9 +25,6 @@ else
     exit 1
   fi
 
-  cp ${temp_file} $HELM_PLUGINS/helm-sealed-secrets
-  chmod +x $HELM_PLUGINS/helm-sealed-secrets
-  echo '#################### IMPORTANT #################################'
-  echo "Please add '$HELM_PLUGINS' to your PATH or the plugin won't work"
-  echo '################################################################'
+  cp ${temp_file} $HELM_PLUGIN_DIR/sealed-secrets.sh
+  chmod +x $HELM_PLUGIN_DIR/sealed-secrets.sh
 fi
