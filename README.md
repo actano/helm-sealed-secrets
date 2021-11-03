@@ -26,7 +26,7 @@ USAGE:
    helm-sealed-secrets [global options] command [command options] [arguments...]
 
 VERSION:
-   0.2.0
+   X.X.X
 
 COMMANDS:
      enc      encrypt a secret template into a sealed secret
@@ -66,7 +66,19 @@ sealed-secrets:
 
 Read these examples to see how the plugin works.
 
-#### Single file
+#### Simple examples
+
+Single file
+```bash
+helm sealed-secrets enc secret-templates/releases/allex-calendar/calendar-postgres-credentials.template.yaml kubernetes-resources/releases/allex-calendar/calendar-postgres-credentials.sealed.yaml
+```
+
+Reseal all secrets (usually this is not what you want)
+```bash
+helm sealed-secrets enc-dir secret-templates kubernetes-resources
+```
+
+#### Encrypt Single file
 
 Specify a secret template `my-secret.template.yaml`.
 ```yaml
@@ -102,7 +114,7 @@ spec:
     password: LbeaMTWxTpWAKD...
 ```
 
-#### Folders
+#### Re-encrypt the whole folder structure
 
 The names of your secret templates must match the pattern `<name>.template.yaml`.
 
