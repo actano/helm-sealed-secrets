@@ -9,7 +9,8 @@ For Development see [the development section](#development)
 
 ### Prerequisites
 
-We are using the [`kubeseal` binary](https://github.com/bitnami-labs/sealed-secrets) and expect it to be installed.
+- We are using the [`kubeseal` binary](https://github.com/bitnami-labs/sealed-secrets) and expect it to be installed.
+- go version at least 1.17
 
 ### Installation
 
