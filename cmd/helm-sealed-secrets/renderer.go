@@ -172,9 +172,6 @@ func dataToBase64(secretContent string) (string, error) {
 			data := item.Value.(yaml.MapSlice)
 			for k, dataItem := range data {
 				valueBytes := []byte(fmt.Sprintf("%v", dataItem.Value))
-				if err != nil {
-					return "", err
-				}
 				data[k].Value = base64.StdEncoding.EncodeToString(valueBytes)
 			}
 		}
