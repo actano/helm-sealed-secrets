@@ -44,6 +44,10 @@ func printOnce(msg string) {
 	}
 }
 
+func createErrorWithCause(msg string, cause error) error {
+	return fmt.Errorf("%s\n\tcaused by: %s", msg, cause.Error())
+}
+
 func NewRenderer(cfg rendererConfig) (*renderer, error) {
 	var vaultRenderer *template.VaultTemplateRenderer
 
@@ -55,12 +59,14 @@ func NewRenderer(cfg rendererConfig) (*renderer, error) {
 		vaultToken, err := ioutil.ReadFile(expandedTokenFile)
 
 		if err != nil {
+			err = createErrorWithCause("Couldn't read vault token from file: "+expandedTokenFile, err)
 			return nil, err
 		}
 
 		vaultRenderer, err = template.NewVaultTemplateRenderer(string(vaultToken), cfg.vault.endpoint)
 
 		if err != nil {
+			err = createErrorWithCause("Couldn't create vault renderer", err)
 			return nil, err
 		}
 	}
@@ -75,6 +81,7 @@ func (r *renderer) renderSingleFile(inputFilePath, outputFilePath string) (err e
 	inputContent, err := ioutil.ReadFile(inputFilePath)
 
 	if err != nil {
+		err = createErrorWithCause("Couldn't read input file: "+inputFilePath, err)
 		return
 	}
 
@@ -83,6 +90,7 @@ func (r *renderer) renderSingleFile(inputFilePath, outputFilePath string) (err e
 		renderedContent, err = r.vaultRenderer.RenderTemplate(string(inputContent))
 
 		if err != nil {
+			err = createErrorWithCause("Couldn't render content from input file: "+inputFilePath, err)
 			return
 		}
 	} else {
@@ -92,12 +100,14 @@ func (r *renderer) renderSingleFile(inputFilePath, outputFilePath string) (err e
 	base64Data, err := dataToBase64(renderedContent)
 
 	if err != nil {
+		err = createErrorWithCause("Couldn't encode rendered content of input file: "+inputFilePath, err)
 		return
 	}
 
 	sealedContent, err := r.sealSecret(base64Data)
 
 	if err != nil {
+		err = createErrorWithCause("Couldn't seal encoded content of input file: "+inputFilePath, err)
 		return
 	}
 
@@ -106,11 +116,13 @@ func (r *renderer) renderSingleFile(inputFilePath, outputFilePath string) (err e
 	err = os.MkdirAll(outputDirectory, 0755)
 
 	if err != nil {
+		err = createErrorWithCause("Couldn't create output directory: "+outputDirectory, err)
 		return
 	}
 	outputFile, err := os.Create(outputFilePath)
 
 	if err != nil {
+		err = createErrorWithCause("Couldn't create output file: "+outputFilePath, err)
 		return
 	}
 
@@ -191,6 +203,11 @@ func (r *renderer) renderDir(inputDir, outputDir string) error {
 
 	if err != nil {
 		return err
+	}
+
+	if len(matches) == 0 {
+		fmt.Printf("No matching files found in input directory %q", inputDir)
+		return nil
 	}
 
 	inputOutputPaths, err := GetInputOutputPaths(matches, inputDir, outputDir)
