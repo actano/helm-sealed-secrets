@@ -2,7 +2,7 @@
 
 set -ueo pipefail
 
-VERSION=0.17.3
+VERSION=0.17.4
 
 function isAlreadyInstalled() {
   hash helm-sealed-secrets 2>/dev/null && [[ $(helm-sealed-secrets -v | cut -d " " -f 3) == ${VERSION} ]]
