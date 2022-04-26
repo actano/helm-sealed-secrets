@@ -1,6 +1,6 @@
 language: go
 go:
-- 1.17.5
+- 1.17.6
 script: go test -v ./...
 install: true
 before_deploy:
@@ -9,7 +9,7 @@ deploy:
   provider: releases
   api_key:
     secure: RAyiN7sWzOvAJBA9Q5MkbAWlo5aVU6XRt9PPcbvbUM5g/iXwwWZre/MquTBOHJtS9Tw8irys4Zqa8vYwOszvmONCk1j+vPrAu2S2YRtrUk5zMA4hT6xqNC36JwRLFk8ztWxBmriz+HTOd08NX2Qmym6Z2a6OGPtReuAPV17dcTpE4cMFwT7WWNISf8LheRxCpS2j1UQBC6tVuc8DUFASdoBE3qJlr7Beewp7Y2ZAQTChTf/PsfvhbQFWyH1lutEzMrQCPguuLheV88DA9iGSMs8D8S5u/RwhCbe2RAXbYkPabN/ihk42Cd24gCxIcpovSofJm1fLIaBpVeV8SHD/ljLG6WIcHbsk9SQPgGwyv7CqxiaLM3ZFrgg/AOh8md0KmvhSIcr1aIIyIk6+5IrGaTyQniBnAUFTxN73YwljHRi2jge5gZKehD00Sh257gfcB5TYmTwAow2S2vNv4oc3Qd3EMWBdnFlhSOWYyFESBnEKgwQKl9tgfaVFcGG6ImjumXyoxx34+N+wg0Pyjt8xJXqxiUs57T4/H9+rvFAxFQGOWDpzsDbgY8g4EBBoATRZWMXI43RQqaFiVgIez+hBf2Fv2ptmAmvd/DhCeUle9SZvBPDHa2g6zbTB9T/pCiv0XwQIynOEqjK9KZVz7tgqWQm7BSt63WGGQAwEz3dxtMk=
-  file: ''
+  file: './build/*'
   on:
     repo: actano/helm-sealed-secrets
   skip_cleanup: 'true'
