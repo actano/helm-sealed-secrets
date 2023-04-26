@@ -1,12 +1,11 @@
 name: Go CI/CD
 
-on:
-  push:
-    branches:
-      - '*'
+on:    
   push:
     tags:
       - '*'
+    branches:
+      - '*'  
   pull_request:
 
 jobs:
