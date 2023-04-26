@@ -2,6 +2,9 @@ name: Go CI/CD
 
 on:
   push:
+    branches:
+      - '*'
+  push:
     tags:
       - '*'
   pull_request:
