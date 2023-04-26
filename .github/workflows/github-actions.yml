@@ -14,12 +14,12 @@ jobs:
       GITHUB_TOKEN: '${{ secrets.ACTANO_GITHUB_TOKEN }}'
     steps:
     - name: Set up Go
-      uses: actions/setup-go@v2
+      uses: actions/setup-go@v4
       with:
         go-version: ${{ env.GO_VERSION }}
 
     - name: Check out code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Test
       run: go test -v ./...
