@@ -5,6 +5,8 @@ import (
 
 	"gopkg.in/urfave/cli.v1"
 	"gopkg.in/urfave/cli.v1/altsrc"
+
+	"strings"
 )
 
 var Version = "0.0.0"
@@ -81,7 +83,7 @@ func main() {
 			Name:  "enc",
 			Usage: "encrypt a secret template into a sealed secret",
 			Action: func(c *cli.Context) error {
-				if c.NArg() < 2 {
+				if c.NArg() < 1 {
 					cli.ShowCommandHelpAndExit(c, "enc", 1)
 				}
 
@@ -92,11 +94,24 @@ func main() {
 				}
 
 				inputFile := c.Args().Get(0)
-				outputFile := c.Args().Get(1)
+				var (outputFile string)
+				if c.NArg() == 1 {
+					outputFile = strings.Replace(
+						strings.Replace(
+							c.Args().Get(0),
+							".template.",
+							".sealed.",
+							-1),
+						"secret-templates",
+						"kubernetes-resources",
+						-1)
+				} else {
+					outputFile = c.Args().Get(1)
+				}
 
 				return renderer.renderSingleFile(inputFile, outputFile)
 			},
-			ArgsUsage: "[input file] [output file]",
+			ArgsUsage: "<input file> [output file]",
 		},
 		{
 			Name:      "enc-dir",
