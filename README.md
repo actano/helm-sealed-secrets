@@ -1,4 +1,5 @@
 # helm-sealed-secrets
+Responsible: #DevOps
 
 [![Build Status](https://travis-ci.com/actano/helm-sealed-secrets.svg?branch=master)](https://travis-ci.com/actano/helm-sealed-secrets)
 
